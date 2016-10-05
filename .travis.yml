@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: tWyQ0T2BB0tNSMYo7y4iM7Jgm2tyu0X/CM9kESj4f/4JlfeyI9eJsmlcore/ODHBwsOn8TTcV1rZ+Kdm9aea6920q+tvCIjcqHFrcX9FiOQRgyaNkDCO9xkso0viPr3H3bTUghceuIKb7PsGq91mNnkGfHTgMz3Bh6Rs3jyQRwJgYqEO6a6Blcvhi4aXe+R084aKNR3xkZqWF3ZeR8TJieKPkBI7ZRt03ievjGxXhef/YzyMVbXGrBIfmeJW99nTlOV8P2Xrp87Y7JFFMLHcjfkgoqKa0zcqIA+WEg0M/B3/OHl4sEsb6M4lK+7PuzQCX2siVF8pWBUxLNAYrh6zXD6HnyopBtGbPc+s6iFShG2VddqvVBYbJj7XJzF/HcUMXNPA4rlJ/iiUdnrC9abJyNxo0DZvBqRLlFlMBNPtlA3Z6LcbhMu50HedFkNuUymgbLiPAOj4gQWTVpwSC33bcFkYkgSi0Y4uS4oumSKK3V5oLkGnpmpmLjEsorm9aoxZxB0Tq46UpTYOOANiorKB+KC/yYJFvKb0s3Q3ntD3dX35/tQ2VVQx7MU/B/Dmjygi/2M5gfgK8NlqTh12crBCg6/QHa1lf9iQBS9sUn7K4oN57ULhygK6iZBdt77sz8KKMuldsI/bqB1VlEhjidKA7FvjdLFTPJhjptAED81KFu4=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/A-Zola-Dictionary--the-Characters-of-the-Rougon-Macquart-Novels-of-Emile-Zola-_5103
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
